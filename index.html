@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blorbish Translator</title>
+  <style>
+    body {
+      background: #0d0d0d;
+      color: #00ffcc;
+      font-family: monospace;
+      padding: 2em;
+    }
+    textarea {
+      width: 100%;
+      background: #1a1a1a;
+      color: #00ffcc;
+      border: none;
+      padding: 1em;
+      font-size: 1.2em;
+      margin-top: 1em;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 1em;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌀 Blorbish Translator</h1>
+
+  <label for="inputText">Type in English:</label>
+  <textarea id="inputText" rows="3" placeholder="Type here...">kpio upf</textarea>
+
+  <label for="blorbishPronounce">Blorbish (Pronounced):</label>
+  <textarea id="blorbishPronounce" rows="2" readonly></textarea>
+
+  <label for="blorbishGlyphs">Blorbish (Glyphs):</label>
+  <textarea id="blorbishGlyphs" rows="2" readonly></textarea>
+
+  
+
+
+  <h2>🧠 Glyph Meanings</h2>
+  <table style="width:100%; border-collapse: collapse; color: #00ffcc;">
+    <thead>
+      <tr style="border-bottom: 1px solid #00ffcc;">
+        <th align="left">Glyph</th>
+        <th align="left">Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>◀▶</td><td>Movement / Travel</td></tr>
+      <tr><td>≡≠</td><td>Conflict / Chaos</td></tr>
+      <tr><td>⌂↑</td><td>Clarity / Vision</td></tr>
+      <tr><td>§¶</td><td>Knowledge / Code</td></tr>
+      <tr><td>▣▤</td><td>Power / Control</td></tr>
+      <tr><td>∎■</td><td>End / Collapse</td></tr>
+      <tr><td>◊◦</td><td>Energy / Spirit</td></tr>
+      <tr><td>≥≤</td><td>Balance / Judgment</td></tr>
+      <tr><td>Δ∇</td><td>Creation / Birth</td></tr>
+      <tr><td>⊗⊙</td><td>Life / Growth</td></tr>
+      <tr><td>⊕⊖</td><td>Begin / Access</td></tr>
+      <tr><td>→⇨</td><td>You / Action</td></tr>
+      <tr><td>⋅⋮</td><td>Connection / Flow</td></tr>
+      <tr><td>×÷</td><td>Destroy / Remove</td></tr>
+      <tr><td>□■</td><td>Witness / Memory</td></tr>
+      <tr><td>≒≈</td><td>Loop / Time</td></tr>
+      <tr><td>↑↓</td><td>Duality / Shift</td></tr>
+      <tr><td>∴∵</td><td>Strength / Will</td></tr>
+      <tr><td>∥‖</td><td>Resistance / Block</td></tr>
+      <tr><td>∧∨</td><td>Merge / Combine</td></tr>
+      <tr><td>∩⊓</td><td>Force / Gravity</td></tr>
+      <tr><td>⊞⊟</td><td>Potential / Locked</td></tr>
+      <tr><td>○◌</td><td>Cycle / Nature</td></tr>
+      <tr><td>⋅⋮</td><td>Path / Thread</td></tr>
+      <tr><td>▌▐</td><td>Hidden / Unknown</td></tr>
+    </tbody>
+  </table>
+
+
+  
+
+  
+
+  
+
+<script>
+  const blorbishSyllables = {
+    A: "Bla", B: "Sa", C: "Dra", D: "Gla", E: "Ha", F: "I",
+    G: "Kla", H: "La", I: "Ma", J: "Na", K: "O", L: "Pla",
+    M: "Kw", N: "Ra", O: "Sa", P: "Tra", Q: "Va", R: "Za",
+    S: "E", T: "U", U: "G", V: "H", W: "Z", X: "A", Y: "O", Z: "V"
+  };
+
+  const blorbishGlyphs = {
+    A: "Δ∇", B: "⊗⊙", C: "○◌", D: "∎■", E: "◊◦", F: "†¤",
+    G: "∩⊓", H: "≡≠", I: "⌂↑", J: "→⇨", K: "◘◙", L: "⋅⋮",
+    M: "∧∨", N: "∥‖", O: "⊕⊖", P: "▣▤", Q: "⊞⊟", R: "≥≤",
+    S: "§¶", T: "◀▶", U: "↑↓", V: "∴∵", W: "▌▐", X: "×÷",
+    Y: "□■", Z: "≒≈"
+  };
+
+  const badPatterns = [
+    /n[i1!|l][gq69][gq69][a@]/i,
+    /n[i1!|l][gq69]{2}e[rp]/i,
+    /f[a@][gq69]{1,2}[o0t]*/i,
+    /r[e3][t7][a@][r7][ddp]+/i,
+    /r[a@][p]+[e3]/i,
+    /k[y7]+[s$]+/i,
+    /k[i1!][l1!][l1!]+(your)?[s$][e3][l1!][fph]+/i,
+    /f[uúu@*]+[cçk]+/i,
+    /b[i1!l][t+][cçk]+[h4]+/i,
+    /s[h#]+[i1!l]+[t+]/i,
+    /a[s$]+[s$]+/i,
+    /c[uú][n]+[t+]/i,
+    /d[a@][m]+[n]+/i,
+    /h[e3][l1!]+[l1!]+/i
+  ];
+
+  const input = document.getElementById("inputText");
+  const pronounce = document.getElementById("blorbishPronounce");
+  const glyphs = document.getElementById("blorbishGlyphs");
+
+  function translateToSyllables(text) {
+    return text.split(" ").map(word =>
+      word.split("").map(char => {
+        const upper = char.toUpperCase();
+        return blorbishSyllables[upper] || char;
+      }).join("")
+    ).join(" ");
+  }
+
+  function translateToGlyphs(text) {
+    return text.split(" ").map(word =>
+      word.split("").map(char => {
+        const upper = char.toUpperCase();
+        return blorbishGlyphs[upper] || char;
+      }).join("")
+    ).join(" ");
+  }
+
+  function containsBannedWords(text) {
+    return badPatterns.some(pattern => pattern.test(text));
+  }
+
+  input.addEventListener("input", () => {
+    if (containsBannedWords(input.value)) {
+      alert("⚠️ Inappropriate content detected. Please keep it Blorbish-friendly.");
+      pronounce.value = "";
+      glyphs.value = "";
+    } else {
+      pronounce.value = translateToSyllables(input.value);
+      glyphs.value = translateToGlyphs(input.value);
+    }
+  });
+</script>
+</body>
+</html>
+
+
+
+

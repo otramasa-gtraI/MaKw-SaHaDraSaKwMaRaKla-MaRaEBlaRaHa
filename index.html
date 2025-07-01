@@ -2,152 +2,125 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Blorbish Translator</title>
   <style>
     body {
-      background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(#0a0a0a, #1a1a1a);
       color: #e0e0e0;
-      font-family: 'Segoe UI Symbol', 'Arial Unicode MS', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 2em;
-      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
     }
-
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 0.5em;
+      margin-top: 30px;
+      font-size: 2em;
     }
-
-    input, button {
-      font-size: 1.2em;
-      padding: 0.6em;
-      border-radius: 8px;
-      border: none;
-      margin: 0.3em;
+    textarea {
+      width: 80%;
+      height: 100px;
+      background: #111;
+      color: #eee;
+      border: 1px solid #444;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      resize: none;
     }
-
-    input {
-      width: 300px;
-      max-width: 90%;
-    }
-
     button {
-      background: #2a2a2a;
-      color: #fff;
+      background: #222;
+      color: white;
+      border: 1px solid #555;
+      padding: 10px 20px;
       cursor: pointer;
+      transition: background 0.3s;
+      margin: 10px;
     }
-
     button:hover {
+      background: #333;
+    }
+    .output {
+      background: #121212;
+      margin: 20px auto;
+      padding: 15px;
+      width: 80%;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #000;
+    }
+    .output-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .copy-btn {
+      margin-left: 10px;
       background: #444;
     }
-
-    .output {
-      margin-top: 2em;
-      width: 90%;
-      max-width: 700px;
-      padding: 1em;
-      background: #111;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.1);
-    }
-
-    .section {
-      margin-top: 1em;
-      padding-bottom: 1em;
-      border-bottom: 1px solid #333;
-    }
-
-    .section:last-child {
-      border-bottom: none;
-    }
-
-    .output h2 {
-      font-size: 1.4em;
-      margin-bottom: 0.4em;
-    }
-
-    .output p {
-      font-size: 1.2em;
-      word-wrap: break-word;
-    }
-
-    .copy-btn {
-      background: #333;
-      color: #fff;
-      font-size: 0.9em;
-      padding: 0.3em 0.6em;
-      border-radius: 5px;
-      border: none;
-      margin-left: 0.5em;
-      cursor: pointer;
-    }
-
-    .copy-btn:hover {
-      background: #555;
+    .gradient-line {
+      height: 3px;
+      background: linear-gradient(to right, #444, #888, #444);
+      margin: 20px auto;
+      width: 80%;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
   <h1>Blorbish Translator</h1>
-  <input id="inputText" placeholder="Type something..." />
-  <button onclick="translate()">Translate</button>
+
+  <textarea id="input" placeholder="Enter English text here..."></textarea>
+  <br />
+  <button id="translateBtn">Translate</button>
+
+  <div class="gradient-line"></div>
 
   <div class="output">
-    <div class="section">
-      <h2>Blorbish Pronunciation
-        <button class="copy-btn" onclick="copyText('pronunciation')">📋 Copy</button>
-      </h2>
-      <p id="pronunciation">...</p>
-    </div>
-    <div class="section">
-      <h2>Glyph Output
-        <button class="copy-btn" onclick="copyText('glyphs')">📋 Copy</button>
-      </h2>
-      <p id="glyphs">...</p>
-    </div>
+    <div class="output-title">Pronunciation:</div>
+    <span id="pronounceOutput"></span>
+    <button class="copy-btn" onclick="copyToClipboard('pronounceOutput')">Copy</button>
+  </div>
+
+  <div class="output">
+    <div class="output-title">Glyphs:</div>
+    <span id="glyphOutput"></span>
+    <button class="copy-btn" onclick="copyToClipboard('glyphOutput')">Copy</button>
   </div>
 
   <script>
-    const blorbMap = {
-      a: "Bla", b: "Sa", c: "Dra", d: "Gla", e: "Ha", f: "I", g: "Kla", h: "La",
-      i: "Ma", j: "Na", k: "O", l: "Pla", m: "Kw", n: "Ra", o: "Sa", p: "Tra",
-      q: "Va", r: "Za", s: "E", t: "U", u: "G", v: "H", w: "Z", x: "A", y: "O", z: "V"
-    };
-
-    const glyphMap = {
-      a: "◊", b: "§", c: "⌂", d: "↑", e: "∎", f: "■", g: "◘", h: "◙",
-      i: "≥", j: "≤", k: "≡", l: "≠", m: "Δ", n: "∇", o: "◀", p: "▶",
-      q: "◦", r: "◊", s: "⊗", t: "⊙", u: "×", v: "÷", w: "▣", x: "▤",
-      y: "∥", z: "‖"
-    };
-
     function translate() {
-      const input = document.getElementById("inputText").value.toLowerCase();
+      const input = document.getElementById("input").value.toUpperCase();
+      const blorbishMap = {
+        A: "Bla", B: "Sa", C: "Dra", D: "Gla", E: "Ha", F: "I", G: "Kla",
+        H: "La", I: "Ma", J: "Na", K: "O", L: "Pla", M: "Kw", N: "Ra",
+        O: "Sa", P: "Tra", Q: "Va", R: "Za", S: "E", T: "U", U: "G",
+        V: "H", W: "Z", X: "A", Y: "O", Z: "V"
+      };
+      const glyphMap = {
+        A: "◀▶", B: "⌂↑", C: "◊◦", D: "≡≠", E: "§¶", F: "▣▤", G: "↑↓",
+        H: "≥≤", I: "∇Δ", J: "∎■", K: "⊗⊙", L: "■□", M: "▌▐", N: "⌂⌂",
+        O: "⌂↑", P: "◘◙", Q: "⊕⊖", R: "∆∇", S: "≠≡", T: "×÷", U: "◄►",
+        V: "⋇⋈", W: "◬◭", X: "◢◣", Y: "◉◌", Z: "◍◎"
+      };
+
       let blorb = "";
       let glyphs = "";
 
       for (let char of input) {
-        if (blorbMap[char]) blorb += blorbMap[char];
-        else if (char === \" \") blorb += \" \";
-
+        if (blorbishMap[char]) blorb += blorbishMap[char];
         if (glyphMap[char]) glyphs += glyphMap[char];
-        else if (char === \" \") glyphs += \" \";
       }
 
-      document.getElementById("pronunciation").innerText = blorb;
-      document.getElementById("glyphs").innerText = glyphs;
+      document.getElementById("pronounceOutput").textContent = blorb;
+      document.getElementById("glyphOutput").textContent = glyphs;
     }
 
-    function copyText(id) {
-      const text = document.getElementById(id).innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        alert(\"Copied!\");
-      });
+    function copyToClipboard(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copied!"))
+        .catch(() => alert("Copy failed"));
     }
+
+    document.getElementById("translateBtn").addEventListener("click", translate);
   </script>
 </body>
 </html>

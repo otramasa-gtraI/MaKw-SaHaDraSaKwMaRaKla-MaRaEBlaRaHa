@@ -1,244 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Blorbish Translator</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(#0a0a0a, #1a1a1a);
+      background: #0d0d0d;
       color: #e0e0e0;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
       overflow-x: hidden;
     }
 
-    /* Background glyphs */
-    .background-glyphs {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      overflow: hidden;
-      pointer-events: none;
-    }
-
-    .glyph {
-      position: absolute;
-      font-size: 30px;
-      color: rgba(255, 255, 255, 0.05);
-      animation: float 20s linear infinite;
-    }
-
-    @keyframes float {
-      0% {
-        transform: translateY(120vh) rotate(0deg);
-      }
-      100% {
-        transform: translateY(-120vh) rotate(360deg);
-      }
-    }
-
-    h1, textarea, button, .output, .gradient-line {
-      animation: slideUp 1s ease forwards;
-      opacity: 0;
-    }
-
-    h1 { animation-delay: 0.2s; }
-    textarea { animation-delay: 0.4s; }
-    #translateBtn { animation-delay: 0.6s; }
-    .gradient-line { animation-delay: 0.8s; }
-    .output:nth-of-type(1) { animation-delay: 1s; }
-    .output:nth-of-type(2) { animation-delay: 1.2s; }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     h1 {
-      margin-top: 30px;
       font-size: 2em;
-      z-index: 1;
-      position: relative;
+      margin-bottom: 20px;
     }
 
     textarea {
-      width: 80%;
+      width: 90%;
       height: 100px;
-      background: #111;
-      color: #eee;
-      border: 1px solid #444;
+      background: #1a1a1a;
+      color: #fff;
+      border: 1px solid #333;
       padding: 10px;
-      font-size: 16px;
-      margin-bottom: 20px;
-      resize: none;
-      z-index: 1;
-      position: relative;
+      resize: vertical;
     }
 
     button {
-      background: #222;
+      margin-top: 10px;
+      background-color: #333;
       color: white;
-      border: 1px solid #555;
+      border: none;
       padding: 10px 20px;
       cursor: pointer;
-      transition: background 0.3s;
-      margin: 10px;
-      z-index: 1;
-      position: relative;
     }
 
-    button:hover {
-      background: #333;
-    }
-
-    .output {
-      background: #121212;
-      margin: 20px auto;
-      padding: 15px;
-      width: 80%;
+    .output-container {
+      background-color: #1a1a1a;
+      margin-top: 20px;
+      padding: 10px;
       border-radius: 8px;
-      box-shadow: 0 0 10px #000;
-      z-index: 1;
-      position: relative;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      width: 90%;
+      transition: all 0.3s ease-in-out;
     }
 
-    .output-title {
-      font-weight: bold;
-      margin-bottom: 5px;
+    .output-container p {
+      margin: 10px 0;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+      word-break: break-word;
+      max-height: 150px;
+      overflow-y: auto;
     }
 
-    .copy-btn {
-      margin-left: 10px;
-      background: #444;
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
     }
 
-    .gradient-line {
-      height: 3px;
-      background: linear-gradient(to right, #444, #888, #444);
-      margin: 20px auto;
-      width: 80%;
-      border-radius: 4px;
-    }
-
-    #toast {
-      visibility: hidden;
-      min-width: 120px;
-      background-color: #111;
-      color: #0f0;
-      text-align: center;
-      padding: 10px 16px;
-      border-radius: 8px;
-      position: fixed;
-      z-index: 9999;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 14px;
-      opacity: 0;
-      transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      font-family: sans-serif;
-    }
-
-    #toast.show {
-      visibility: visible;
-      opacity: 1;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <!-- Floating glyphs background -->
-  <div class="background-glyphs" id="glyphs"></div>
-
   <h1>Blorbish Translator</h1>
+  <textarea id="input" placeholder="Type something in English..."></textarea>
+  <button onclick="handleTranslate()">Translate</button>
 
-  <textarea id="input" placeholder="Enter English text here..."></textarea>
-  <br />
-  <button id="translateBtn">Translate</button>
-
-  <div class="gradient-line"></div>
-
-  <div class="output">
-    <div class="output-title">Pronunciation:</div>
-    <span id="pronounceOutput"></span>
-    <button class="copy-btn" onclick="copyToClipboard('pronounceOutput')">Copy</button>
+  <div id="pronunciation-container" class="output-container fade-in">
+    <strong>Pronunciation:</strong>
+    <p id="pronunciation-output"></p>
+    <button onclick="copyText('pronunciation-output')">Copy</button>
   </div>
 
-  <div class="output">
-    <div class="output-title">Glyphs:</div>
-    <span id="glyphOutput"></span>
-    <button class="copy-btn" onclick="copyToClipboard('glyphOutput')">Copy</button>
+  <div id="glyphs-container" class="output-container fade-in">
+    <strong>Glyphs:</strong>
+    <p id="glyph-output"></p>
+    <button onclick="copyText('glyph-output')">Copy</button>
   </div>
 
-  <div id="toast">Copied!</div>
+  <div id="meaning-container" class="output-container fade-in">
+    <strong>Glyph Meaning:</strong>
+    <p id="glyph-meaning-output"></p>
+  </div>
 
   <script>
-    // Translate logic
-    function translate() {
-      const input = document.getElementById("input").value.toUpperCase();
-      const blorbishMap = {
-        A: "Bla", B: "Sa", C: "Dra", D: "Gla", E: "Ha", F: "I", G: "Kla",
-        H: "La", I: "Ma", J: "Na", K: "O", L: "Pla", M: "Kw", N: "Ra",
-        O: "Sa", P: "Tra", Q: "Va", R: "Za", S: "E", T: "U", U: "G",
-        V: "H", W: "Z", X: "A", Y: "O", Z: "V"
-      };
-      const glyphMap = {
-        A: "◀▶", B: "⌂↑", C: "◊◦", D: "≡≠", E: "§¶", F: "▣▤", G: "↑↓",
-        H: "≥≤", I: "∇Δ", J: "∎■", K: "⊗⊙", L: "■□", M: "▌▐", N: "⌂⌂",
-        O: "⌂↑", P: "◘◙", Q: "⊕⊖", R: "∆∇", S: "≠≡", T: "×÷", U: "◄►",
-        V: "⋇⋈", W: "◬◭", X: "◢◣", Y: "◉◌", Z: "◍◎"
-      };
+    const glyphMap = {
+      '◀▶': 'movement',
+      '≡≠': 'conflict',
+      '⊙': 'energy',
+      '∆∇': 'creation',
+      '⊗': 'power',
+      '⇋': 'cycle',
+      '⇕': 'duality',
+      '§¶': 'knowledge',
+      '▣▤': 'strength',
+      '⌂↑': 'force',
+      '≥≤': 'balance',
+      '◊◦': 'path',
+      '∎■': 'collapse'
+    };
 
-      let blorb = "";
-      let glyphs = "";
+    function handleTranslate() {
+      const input = document.getElementById('input').value.trim();
+      const words = input.split(/\s+/);
 
-      for (let char of input) {
-        if (blorbishMap[char]) blorb += blorbishMap[char];
-        if (glyphMap[char]) glyphs += glyphMap[char];
-      }
-
-      document.getElementById("pronounceOutput").textContent = blorb;
-      document.getElementById("glyphOutput").textContent = glyphs;
-    }
-
-    // Copy to clipboard
-    function copyToClipboard(id) {
-      const text = document.getElementById(id).textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const toast = document.getElementById("toast");
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2000);
+      const pronunciation = words.map(() => "Gla").join("");
+      const glyphs = words.map(() => {
+        const keys = Object.keys(glyphMap);
+        return keys[Math.floor(Math.random() * keys.length)];
       });
+
+      const meanings = glyphs.map(g => glyphMap[g]).filter(Boolean);
+      let meaningSentence = "It reflects: " + meanings.join(", ") + ".";
+
+      document.getElementById("pronunciation-output").textContent = pronunciation;
+      document.getElementById("glyph-output").textContent = glyphs.join(" ");
+      document.getElementById("glyph-meaning-output").textContent = meaningSentence;
     }
 
-    document.getElementById("translateBtn").addEventListener("click", translate);
-
-    // Generate background glyphs
-    const symbols = ["◊", "◦", "≡", "≠", "⌂", "↑", "§", "¶", "▣", "▤", "≥", "≤", "∇", "Δ", "⊗", "⊙"];
-    const container = document.getElementById("glyphs");
-
-    for (let i = 0; i < 50; i++) {
-      const span = document.createElement("span");
-      span.className = "glyph";
-      span.style.left = Math.random() * 100 + "vw";
-      span.style.top = Math.random() * 100 + "vh";
-      span.style.animationDuration = (20 + Math.random() * 10) + "s";
-      span.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-      container.appendChild(span);
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+      });
     }
   </script>
 </body>

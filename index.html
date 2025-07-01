@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Blorbish Translator</title>
   <style>
     * {
@@ -91,10 +91,10 @@
     }
     .glyph-background span {
       position: absolute;
-      color: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.06);
       font-size: 2em;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-      animation: floatUp 10s linear;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      animation: floatUp 10s linear forwards;
       opacity: 1;
     }
     @keyframes floatUp {
@@ -154,7 +154,8 @@
       const input = document.getElementById('input').value.trim().toLowerCase();
       const words = input.split(/\s+/);
       const pronunciation = input.split("").map(ch => pronunciationMap[ch] || ch).join("-");
-      const glyphs = words.map((word, i) => Object.keys(glyphMap)[i % Object.keys(glyphMap).length]);
+      const glyphKeys = Object.keys(glyphMap);
+      const glyphs = words.map((word, index) => glyphKeys[index % glyphKeys.length]);
       const meanings = glyphs.map(g => glyphMap[g]).filter(Boolean);
       document.getElementById("pronunciation-output").textContent = pronunciation;
       document.getElementById("glyph-output").textContent = glyphs.join(" ");

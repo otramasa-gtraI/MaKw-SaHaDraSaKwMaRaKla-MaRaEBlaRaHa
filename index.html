@@ -1,191 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Blorbish Translator</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
-      height: 100%;
-      overflow-x: hidden;
-    }
-    body {
-      background: #0d0d0d;
-      color: #e0e0e0;
-      font-family: monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      position: relative;
-    }
-    h1 {
-      font-size: 2em;
-      margin-bottom: 20px;
-      z-index: 2;
-    }
-    textarea {
-      width: 90%;
-      height: 100px;
-      background: #1a1a1a;
-      color: #fff;
-      border: 1px solid #333;
-      padding: 10px;
-      resize: vertical;
-      z-index: 2;
-    }
-    button {
-      margin-top: 10px;
-      background-color: #333;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      z-index: 2;
-    }
-    .output-container {
-      background-color: #1a1a1a;
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      width: 90%;
-      z-index: 2;
-    }
-    .output-container p {
-      margin: 10px 0;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      white-space: normal;
-      word-break: break-word;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-    .copy-notification {
-      position: fixed;
-      bottom: 30px;
-      background: #333;
-      color: #0f0;
-      padding: 8px 16px;
-      border-radius: 5px;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
-      z-index: 100;
-    }
-    .copy-notification.show {
-      opacity: 1;
-    }
-    .glyph-background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      z-index: 0;
-      pointer-events: none;
-    }
-    .glyph-background span {
-      position: absolute;
-      color: rgba(255, 255, 255, 0.06);
-      font-size: 2em;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-      animation: floatUp 10s linear forwards;
-      opacity: 1;
-    }
-    @keyframes floatUp {
-      0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
-    }
-  </style>
-</head>
-<body>
-  <div class="glyph-background" id="glyph-background"></div>
-  <h1>Blorbish Translator</h1>
-  <textarea id="input" placeholder="Type something in English..."></textarea>
-  <button onclick="handleTranslate()">Translate</button>
-  <div class="output-container">
-    <strong>Pronunciation:</strong>
-    <p id="pronunciation-output"></p>
-    <button onclick="copyText('pronunciation-output')">Copy</button>
-  </div>
-  <div class="output-container">
-    <strong>Glyphs:</strong>
-    <p id="glyph-output"></p>
-    <button onclick="copyText('glyph-output')">Copy</button>
-  </div>
-  <div class="output-container">
-    <strong>Glyph Meaning:</strong>
-    <p id="glyph-meaning-output"></p>
-  </div>
-  <div id="copy-notify" class="copy-notification">Copied to clipboard!</div>
+<script>
+  const glyphMap = {
+    '◀▶': 'movement',
+    '≡≠': 'conflict',
+    '⊙': 'energy',
+    '∆∇': 'creation',
+    '⊗': 'power',
+    '⇋': 'cycle',
+    '⇕': 'duality',
+    '§¶': 'knowledge',
+    '▣▤': 'strength',
+    '⌂↑': 'force',
+    '≥≤': 'balance',
+    '◊◦': 'path',
+    '∎■': 'collapse'
+  };
 
-  <script>
-    const glyphMap = {
-      '◀▶': 'movement',
-      '≡≠': 'conflict',
-      '⊙': 'energy',
-      '∆∇': 'creation',
-      '⊗': 'power',
-      '⇋': 'cycle',
-      '⇕': 'duality',
-      '§¶': 'knowledge',
-      '▣▤': 'strength',
-      '⌂↑': 'force',
-      '≥≤': 'balance',
-      '◊◦': 'path',
-      '∎■': 'collapse'
-    };
+  const letterToGlyphMap = {
+    a: '◀▶', b: '≡≠', c: '⊙', d: '∆∇', e: '⊗', f: '⇋', g: '⇕',
+    h: '§¶', i: '▣▤', j: '⌂↑', k: '≥≤', l: '◊◦', m: '∎■', n: '◀▶',
+    o: '≡≠', p: '⊙', q: '∆∇', r: '⊗', s: '⇋', t: '⇕', u: '§¶',
+    v: '▣▤', w: '⌂↑', x: '≥≤', y: '◊◦', z: '∎■'
+  };
 
-    const pronunciationMap = {
-      a: "Ahn", b: "Bra", c: "Cha", d: "Dra", e: "Ekk", f: "Fla",
-      g: "Gla", h: "Hra", i: "Ikk", j: "Jra", k: "Kra", l: "Lla",
-      m: "Mra", n: "Nra", o: "Ook", p: "Pla", q: "Kua", r: "Rra",
-      s: "Sha", t: "Tra", u: "Urr", v: "Vra", w: "Wra", x: "Xka",
-      y: "Yra", z: "Zla"
-    };
+  const pronunciationMap = {
+    a: "Ahn", b: "Bra", c: "Cha", d: "Dra", e: "Ekk", f: "Fla",
+    g: "Gla", h: "Hra", i: "Ikk", j: "Jra", k: "Kra", l: "Lla",
+    m: "Mra", n: "Nra", o: "Ook", p: "Pla", q: "Kua", r: "Rra",
+    s: "Sha", t: "Tra", u: "Urr", v: "Vra", w: "Wra", x: "Xka",
+    y: "Yra", z: "Zla"
+  };
 
-    function handleTranslate() {
-      const input = document.getElementById('input').value.trim().toLowerCase();
-      const words = input.split(/\s+/);
-      const pronunciation = input.split("").map(ch => pronunciationMap[ch] || ch).join("-");
-      const glyphKeys = Object.keys(glyphMap);
-      const glyphs = words.map((word, index) => glyphKeys[index % glyphKeys.length]);
-      const meanings = glyphs.map(g => glyphMap[g]).filter(Boolean);
-      document.getElementById("pronunciation-output").textContent = pronunciation;
-      document.getElementById("glyph-output").textContent = glyphs.join(" ");
-      document.getElementById("glyph-meaning-output").textContent = "It reflects: " + meanings.join(", ") + ".";
-    }
+  function handleTranslate() {
+    const input = document.getElementById('input').value.trim().toLowerCase();
+    const words = input.split(/\s+/);
 
-    function copyText(id) {
-      const text = document.getElementById(id).innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        const notify = document.getElementById("copy-notify");
-        notify.classList.add("show");
-        setTimeout(() => notify.classList.remove("show"), 1500);
-      });
-    }
+    const pronunciation = input.split("").map(ch => pronunciationMap[ch] || ch).join("-");
 
-    const bg = document.getElementById("glyph-background");
-    const glyphs = Object.keys(glyphMap);
-    function createGlyphParticle() {
-      const span = document.createElement("span");
-      span.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
-      span.style.left = Math.random() * 100 + "vw";
-      span.style.top = Math.random() * 100 + "vh";
-      span.style.animationDuration = (8 + Math.random() * 4) + "s";
-      span.style.fontSize = (1 + Math.random() * 2) + "em";
-      span.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
-      span.addEventListener("animationend", () => span.remove());
-      bg.appendChild(span);
-    }
+    const glyphs = words.map(word => {
+      const firstChar = word.charAt(0);
+      return letterToGlyphMap[firstChar] || "??";
+    });
 
-    setInterval(createGlyphParticle, 250);
-  </script>
-</body>
+    const meanings = glyphs.map(g => glyphMap[g]).filter(Boolean);
+    const meaningText = meanings.length
+      ? "It reflects: " + meanings.join(", ") + "."
+      : "No recognizable glyph meanings.";
+
+    document.getElementById("pronunciation-output").textContent = pronunciation;
+    document.getElementById("glyph-output").textContent = glyphs.join(" ");
+    document.getElementById("glyph-meaning-output").textContent = meaningText;
+  }
+
+  function copyText(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const notify = document.getElementById("copy-notify");
+      notify.classList.add("show");
+      setTimeout(() => notify.classList.remove("show"), 1500);
+    });
+  }
+
+  const bg = document.getElementById("glyph-background");
+  const glyphs = Object.keys(glyphMap);
+  function createGlyphParticle() {
+    const span = document.createElement("span");
+    span.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+    span.style.left = Math.random() * 100 + "vw";
+    span.style.top = Math.random() * 100 + "vh";
+    span.style.animationDuration = (8 + Math.random() * 4) + "s";
+    span.style.fontSize = (1 + Math.random() * 2) + "em";
+    span.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+    span.addEventListener("animationend", () => span.remove());
+    bg.appendChild(span);
+  }
+
+  setInterval(createGlyphParticle, 250);
+</script>
+
 </html>

@@ -1,80 +1,213 @@
-<script>
-  const glyphMap = {
-    '◀▶': 'movement',
-    '≡≠': 'conflict',
-    '⊙': 'energy',
-    '∆∇': 'creation',
-    '⊗': 'power',
-    '⇋': 'cycle',
-    '⇕': 'duality',
-    '§¶': 'knowledge',
-    '▣▤': 'strength',
-    '⌂↑': 'force',
-    '≥≤': 'balance',
-    '◊◦': 'path',
-    '∎■': 'collapse'
-  };
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blorbish Translator</title>
+  <style>
+    body {
+      background: #0d0d0d;
+      color: #e0e0e0;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-  const letterToGlyphMap = {
-    a: '◀▶', b: '≡≠', c: '⊙', d: '∆∇', e: '⊗', f: '⇋', g: '⇕',
-    h: '§¶', i: '▣▤', j: '⌂↑', k: '≥≤', l: '◊◦', m: '∎■', n: '◀▶',
-    o: '≡≠', p: '⊙', q: '∆∇', r: '⊗', s: '⇋', t: '⇕', u: '§¶',
-    v: '▣▤', w: '⌂↑', x: '≥≤', y: '◊◦', z: '∎■'
-  };
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      z-index: 2;
+    }
 
-  const pronunciationMap = {
-    a: "Ahn", b: "Bra", c: "Cha", d: "Dra", e: "Ekk", f: "Fla",
-    g: "Gla", h: "Hra", i: "Ikk", j: "Jra", k: "Kra", l: "Lla",
-    m: "Mra", n: "Nra", o: "Ook", p: "Pla", q: "Kua", r: "Rra",
-    s: "Sha", t: "Tra", u: "Urr", v: "Vra", w: "Wra", x: "Xka",
-    y: "Yra", z: "Zla"
-  };
+    textarea {
+      width: 90%;
+      height: 100px;
+      background: #1a1a1a;
+      color: #fff;
+      border: 1px solid #333;
+      padding: 10px;
+      resize: vertical;
+      z-index: 2;
+    }
 
-  function handleTranslate() {
-    const input = document.getElementById('input').value.trim().toLowerCase();
-    const words = input.split(/\s+/);
+    button {
+      margin-top: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      z-index: 2;
+    }
 
-    const pronunciation = input.split("").map(ch => pronunciationMap[ch] || ch).join("-");
+    .output-container {
+      background-color: #1a1a1a;
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      width: 90%;
+      transition: all 0.3s ease-in-out;
+      z-index: 2;
+    }
 
-    const glyphs = words.map(word => {
-      const firstChar = word.charAt(0);
-      return letterToGlyphMap[firstChar] || "??";
-    });
+    .output-container p {
+      margin: 10px 0;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+      word-break: break-word;
+      max-height: 150px;
+      overflow-y: auto;
+    }
 
-    const meanings = glyphs.map(g => glyphMap[g]).filter(Boolean);
-    const meaningText = meanings.length
-      ? "It reflects: " + meanings.join(", ") + "."
-      : "No recognizable glyph meanings.";
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
 
-    document.getElementById("pronunciation-output").textContent = pronunciation;
-    document.getElementById("glyph-output").textContent = glyphs.join(" ");
-    document.getElementById("glyph-meaning-output").textContent = meaningText;
-  }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-  function copyText(id) {
-    const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      const notify = document.getElementById("copy-notify");
-      notify.classList.add("show");
-      setTimeout(() => notify.classList.remove("show"), 1500);
-    });
-  }
+    .copy-notification {
+      position: fixed;
+      bottom: 30px;
+      background: #333;
+      color: #0f0;
+      padding: 8px 16px;
+      border-radius: 5px;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+      z-index: 100;
+    }
 
-  const bg = document.getElementById("glyph-background");
-  const glyphs = Object.keys(glyphMap);
-  function createGlyphParticle() {
-    const span = document.createElement("span");
-    span.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
-    span.style.left = Math.random() * 100 + "vw";
-    span.style.top = Math.random() * 100 + "vh";
-    span.style.animationDuration = (8 + Math.random() * 4) + "s";
-    span.style.fontSize = (1 + Math.random() * 2) + "em";
-    span.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
-    span.addEventListener("animationend", () => span.remove());
-    bg.appendChild(span);
-  }
+    .copy-notification.show {
+      opacity: 1;
+    }
 
-  setInterval(createGlyphParticle, 250);
-</script>
+    .glyph-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
 
+    .glyph-background span {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.05);
+      font-size: 2em;
+      animation: floatUp 12s linear infinite;
+      opacity: 0.8;
+      text-shadow: 0 0 8px #fff;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0.8; }
+      90% { opacity: 0.5; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glyph-background" id="glyph-background"></div>
+
+  <h1>Blorbish Translator</h1>
+  <textarea id="input" placeholder="Type something in English..."></textarea>
+  <button onclick="handleTranslate()">Translate</button>
+
+  <div id="pronunciation-container" class="output-container fade-in">
+    <strong>Pronunciation:</strong>
+    <p id="pronunciation-output"></p>
+    <button onclick="copyText('pronunciation-output')">Copy</button>
+  </div>
+
+  <div id="glyphs-container" class="output-container fade-in">
+    <strong>Glyphs:</strong>
+    <p id="glyph-output"></p>
+    <button onclick="copyText('glyph-output')">Copy</button>
+  </div>
+
+  <div id="meaning-container" class="output-container fade-in">
+    <strong>Glyph Meaning:</strong>
+    <p id="glyph-meaning-output"></p>
+  </div>
+
+  <div id="copy-notify" class="copy-notification">Copied to clipboard!</div>
+
+  <script>
+    const letterGlyphMap = {
+      a: '◀▶', b: '≡≠', c: '⊙', d: '∆∇', e: '⊗', f: '⇋', g: '⇕',
+      h: '§¶', i: '▣▤', j: '⌂↑', k: '≥≤', l: '◊◦', m: '∎■',
+      n: '◀▶', o: '≡≠', p: '⊙', q: '∆∇', r: '⊗', s: '⇋', t: '⇕',
+      u: '§¶', v: '▣▤', w: '⌂↑', x: '≥≤', y: '◊◦', z: '∎■'
+    };
+
+    const glyphMeanings = {
+      '◀▶': 'Movement', '≡≠': 'Conflict', '⊙': 'Energy', '∆∇': 'Creation',
+      '⊗': 'Power', '⇋': 'Cycle', '⇕': 'Duality', '§¶': 'Knowledge',
+      '▣▤': 'Strength', '⌂↑': 'Force', '≥≤': 'Balance', '◊◦': 'Path',
+      '∎■': 'Collapse'
+    };
+
+    const pronunciationMap = {
+      a: "Ahn", b: "Bra", c: "Cha", d: "Dra", e: "Ekk", f: "Fla",
+      g: "Gla", h: "Hra", i: "Ikk", j: "Jra", k: "Kra", l: "Lla",
+      m: "Mra", n: "Nra", o: "Ook", p: "Pla", q: "Kua", r: "Rra",
+      s: "Sha", t: "Tra", u: "Urr", v: "Vra", w: "Wra", x: "Xka",
+      y: "Yra", z: "Zla"
+    };
+
+    function handleTranslate() {
+      const input = document.getElementById('input').value.trim().toLowerCase();
+      if (!input) return;
+
+      const words = input.split(/\s+/);
+
+      const pronunciation = input.split("").map(ch => pronunciationMap[ch] || ch).join("-");
+
+      const glyphs = words.map(word => {
+        const first = word[0];
+        return letterGlyphMap[first] || '??';
+      });
+
+      const meanings = glyphs.map(g => glyphMeanings[g]).filter(Boolean);
+      const meaningSentence = "It reflects: " + meanings.join(", ") + ".";
+
+      document.getElementById("pronunciation-output").textContent = pronunciation;
+      document.getElementById("glyph-output").textContent = glyphs.join(" ");
+      document.getElementById("glyph-meaning-output").textContent = meaningSentence;
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const notify = document.getElementById("copy-notify");
+        notify.classList.add("show");
+        setTimeout(() => notify.classList.remove("show"), 1500);
+      });
+    }
+
+    // Background glyph float
+    const glyphs = Object.values(letterGlyphMap);
+    const bg = document.getElementById("glyph-background");
+    for (let i = 0; i < 60; i++) {
+      const span = document.createElement("span");
+      span.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+      span.style.left = Math.random() * 100 + "vw";
+      span.style.top = Math.random() * 100 + "vh";
+      span.style.animationDuration = (10 + Math.random() * 15) + "s";
+      span.style.transform = `rotate(${Math.random() * 360}deg)`;
+      span.style.fontSize = `${1.5 + Math.random() * 3}em`;
+      bg.appendChild(span);
+    }
+  </script>
+</body>
 </html>

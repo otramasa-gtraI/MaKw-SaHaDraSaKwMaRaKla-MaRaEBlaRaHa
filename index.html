@@ -113,11 +113,9 @@
 
   <script>
     const blorbMap = {
-      a: "Bla", b: "Sa", c: "Dra", d: "Gla", e: "Ha",
-      f: "I", g: "Kla", h: "La", i: "Ma", j: "Na",
-      k: "O", l: "Pla", m: "Kw", n: "Ra", o: "Sa",
-      p: "Tra", q: "Va", r: "Za", s: "E", t: "U",
-      u: "G", v: "H", w: "Z", x: "A", y: "O", z: "V"
+      a: "Bla", b: "Sa", c: "Dra", d: "Gla", e: "Ha", f: "I", g: "Kla", h: "La",
+      i: "Ma", j: "Na", k: "O", l: "Pla", m: "Kw", n: "Ra", o: "Sa", p: "Tra",
+      q: "Va", r: "Za", s: "E", t: "U", u: "G", v: "H", w: "Z", x: "A", y: "O", z: "V"
     };
 
     const glyphMap = {
@@ -134,9 +132,10 @@
 
       for (let char of input) {
         if (blorbMap[char]) blorb += blorbMap[char];
-        else if (char === " ") blorb += " ";
+        else if (char === \" \") blorb += \" \";
+
         if (glyphMap[char]) glyphs += glyphMap[char];
-        else if (char === " ") glyphs += " ";
+        else if (char === \" \") glyphs += \" \";
       }
 
       document.getElementById("pronunciation").innerText = blorb;
@@ -146,7 +145,7 @@
     function copyText(id) {
       const text = document.getElementById(id).innerText;
       navigator.clipboard.writeText(text).then(() => {
-        alert("Copied!");
+        alert(\"Copied!\");
       });
     }
   </script>

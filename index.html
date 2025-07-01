@@ -1,165 +1,154 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Blorbish Translator</title>
   <style>
     body {
-      background: #0d0d0d;
-      color: #00ffcc;
-      font-family: monospace;
+      background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
+      color: #e0e0e0;
+      font-family: 'Segoe UI Symbol', 'Arial Unicode MS', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
       padding: 2em;
+      min-height: 100vh;
     }
-    textarea {
-      width: 100%;
-      background: #1a1a1a;
-      color: #00ffcc;
-      border: none;
-      padding: 1em;
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 0.5em;
+    }
+
+    input, button {
       font-size: 1.2em;
-      margin-top: 1em;
+      padding: 0.6em;
+      border-radius: 8px;
+      border: none;
+      margin: 0.3em;
     }
-    label {
-      font-weight: bold;
+
+    input {
+      width: 300px;
+      max-width: 90%;
+    }
+
+    button {
+      background: #2a2a2a;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #444;
+    }
+
+    .output {
+      margin-top: 2em;
+      width: 90%;
+      max-width: 700px;
+      padding: 1em;
+      background: #111;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
+
+    .section {
       margin-top: 1em;
-      display: block;
+      padding-bottom: 1em;
+      border-bottom: 1px solid #333;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    .output h2 {
+      font-size: 1.4em;
+      margin-bottom: 0.4em;
+    }
+
+    .output p {
+      font-size: 1.2em;
+      word-wrap: break-word;
+    }
+
+    .copy-btn {
+      background: #333;
+      color: #fff;
+      font-size: 0.9em;
+      padding: 0.3em 0.6em;
+      border-radius: 5px;
+      border: none;
+      margin-left: 0.5em;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background: #555;
     }
   </style>
 </head>
 <body>
+  <h1>Blorbish Translator</h1>
+  <input id="inputText" placeholder="Type something..." />
+  <button onclick="translate()">Translate</button>
 
-  <h1>🌀 Blorbish Translator</h1>
+  <div class="output">
+    <div class="section">
+      <h2>Blorbish Pronunciation
+        <button class="copy-btn" onclick="copyText('pronunciation')">📋 Copy</button>
+      </h2>
+      <p id="pronunciation">...</p>
+    </div>
+    <div class="section">
+      <h2>Glyph Output
+        <button class="copy-btn" onclick="copyText('glyphs')">📋 Copy</button>
+      </h2>
+      <p id="glyphs">...</p>
+    </div>
+  </div>
 
-  <label for="inputText">Type in English:</label>
-  <textarea id="inputText" rows="3" placeholder="Type here...">kpio upf</textarea>
+  <script>
+    const blorbMap = {
+      a: "Bla", b: "Sa", c: "Dra", d: "Gla", e: "Ha",
+      f: "I", g: "Kla", h: "La", i: "Ma", j: "Na",
+      k: "O", l: "Pla", m: "Kw", n: "Ra", o: "Sa",
+      p: "Tra", q: "Va", r: "Za", s: "E", t: "U",
+      u: "G", v: "H", w: "Z", x: "A", y: "O", z: "V"
+    };
 
-  <label for="blorbishPronounce">Blorbish (Pronounced):</label>
-  <textarea id="blorbishPronounce" rows="2" readonly></textarea>
+    const glyphMap = {
+      a: "◊", b: "§", c: "⌂", d: "↑", e: "∎", f: "■", g: "◘", h: "◙",
+      i: "≥", j: "≤", k: "≡", l: "≠", m: "Δ", n: "∇", o: "◀", p: "▶",
+      q: "◦", r: "◊", s: "⊗", t: "⊙", u: "×", v: "÷", w: "▣", x: "▤",
+      y: "∥", z: "‖"
+    };
 
-  <label for="blorbishGlyphs">Blorbish (Glyphs):</label>
-  <textarea id="blorbishGlyphs" rows="2" readonly></textarea>
+    function translate() {
+      const input = document.getElementById("inputText").value.toLowerCase();
+      let blorb = "";
+      let glyphs = "";
 
-  
+      for (let char of input) {
+        if (blorbMap[char]) blorb += blorbMap[char];
+        else if (char === " ") blorb += " ";
+        if (glyphMap[char]) glyphs += glyphMap[char];
+        else if (char === " ") glyphs += " ";
+      }
 
-
-  <h2>🧠 Glyph Meanings</h2>
-  <table style="width:100%; border-collapse: collapse; color: #00ffcc;">
-    <thead>
-      <tr style="border-bottom: 1px solid #00ffcc;">
-        <th align="left">Glyph</th>
-        <th align="left">Meaning</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>◀▶</td><td>Movement / Travel</td></tr>
-      <tr><td>≡≠</td><td>Conflict / Chaos</td></tr>
-      <tr><td>⌂↑</td><td>Clarity / Vision</td></tr>
-      <tr><td>§¶</td><td>Knowledge / Code</td></tr>
-      <tr><td>▣▤</td><td>Power / Control</td></tr>
-      <tr><td>∎■</td><td>End / Collapse</td></tr>
-      <tr><td>◊◦</td><td>Energy / Spirit</td></tr>
-      <tr><td>≥≤</td><td>Balance / Judgment</td></tr>
-      <tr><td>Δ∇</td><td>Creation / Birth</td></tr>
-      <tr><td>⊗⊙</td><td>Life / Growth</td></tr>
-      <tr><td>⊕⊖</td><td>Begin / Access</td></tr>
-      <tr><td>→⇨</td><td>You / Action</td></tr>
-      <tr><td>⋅⋮</td><td>Connection / Flow</td></tr>
-      <tr><td>×÷</td><td>Destroy / Remove</td></tr>
-      <tr><td>□■</td><td>Witness / Memory</td></tr>
-      <tr><td>≒≈</td><td>Loop / Time</td></tr>
-      <tr><td>↑↓</td><td>Duality / Shift</td></tr>
-      <tr><td>∴∵</td><td>Strength / Will</td></tr>
-      <tr><td>∥‖</td><td>Resistance / Block</td></tr>
-      <tr><td>∧∨</td><td>Merge / Combine</td></tr>
-      <tr><td>∩⊓</td><td>Force / Gravity</td></tr>
-      <tr><td>⊞⊟</td><td>Potential / Locked</td></tr>
-      <tr><td>○◌</td><td>Cycle / Nature</td></tr>
-      <tr><td>⋅⋮</td><td>Path / Thread</td></tr>
-      <tr><td>▌▐</td><td>Hidden / Unknown</td></tr>
-    </tbody>
-  </table>
-
-
-  
-
-  
-
-  
-
-<script>
-  const blorbishSyllables = {
-    A: "Bla", B: "Sa", C: "Dra", D: "Gla", E: "Ha", F: "I",
-    G: "Kla", H: "La", I: "Ma", J: "Na", K: "O", L: "Pla",
-    M: "Kw", N: "Ra", O: "Sa", P: "Tra", Q: "Va", R: "Za",
-    S: "E", T: "U", U: "G", V: "H", W: "Z", X: "A", Y: "O", Z: "V"
-  };
-
-  const blorbishGlyphs = {
-    A: "Δ∇", B: "⊗⊙", C: "○◌", D: "∎■", E: "◊◦", F: "†¤",
-    G: "∩⊓", H: "≡≠", I: "⌂↑", J: "→⇨", K: "◘◙", L: "⋅⋮",
-    M: "∧∨", N: "∥‖", O: "⊕⊖", P: "▣▤", Q: "⊞⊟", R: "≥≤",
-    S: "§¶", T: "◀▶", U: "↑↓", V: "∴∵", W: "▌▐", X: "×÷",
-    Y: "□■", Z: "≒≈"
-  };
-
-  const badPatterns = [
-    /n[i1!|l][gq69][gq69][a@]/i,
-    /n[i1!|l][gq69]{2}e[rp]/i,
-    /f[a@][gq69]{1,2}[o0t]*/i,
-    /r[e3][t7][a@][r7][ddp]+/i,
-    /r[a@][p]+[e3]/i,
-    /k[y7]+[s$]+/i,
-    /k[i1!][l1!][l1!]+(your)?[s$][e3][l1!][fph]+/i,
-    /f[uúu@*]+[cçk]+/i,
-    /b[i1!l][t+][cçk]+[h4]+/i,
-    /s[h#]+[i1!l]+[t+]/i,
-    /a[s$]+[s$]+/i,
-    /c[uú][n]+[t+]/i,
-    /d[a@][m]+[n]+/i,
-    /h[e3][l1!]+[l1!]+/i
-  ];
-
-  const input = document.getElementById("inputText");
-  const pronounce = document.getElementById("blorbishPronounce");
-  const glyphs = document.getElementById("blorbishGlyphs");
-
-  function translateToSyllables(text) {
-    return text.split(" ").map(word =>
-      word.split("").map(char => {
-        const upper = char.toUpperCase();
-        return blorbishSyllables[upper] || char;
-      }).join("")
-    ).join(" ");
-  }
-
-  function translateToGlyphs(text) {
-    return text.split(" ").map(word =>
-      word.split("").map(char => {
-        const upper = char.toUpperCase();
-        return blorbishGlyphs[upper] || char;
-      }).join("")
-    ).join(" ");
-  }
-
-  function containsBannedWords(text) {
-    return badPatterns.some(pattern => pattern.test(text));
-  }
-
-  input.addEventListener("input", () => {
-    if (containsBannedWords(input.value)) {
-      alert("⚠️ Inappropriate content detected. Please keep it Blorbish-friendly.");
-      pronounce.value = "";
-      glyphs.value = "";
-    } else {
-      pronounce.value = translateToSyllables(input.value);
-      glyphs.value = translateToGlyphs(input.value);
+      document.getElementById("pronunciation").innerText = blorb;
+      document.getElementById("glyphs").innerText = glyphs;
     }
-  });
-</script>
+
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied!");
+      });
+    }
+  </script>
 </body>
 </html>
-
-
-
-
